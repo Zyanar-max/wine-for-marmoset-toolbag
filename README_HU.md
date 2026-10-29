@@ -100,7 +100,7 @@ Visszaállítja a képek régi társításait és a menübejegyzéseidet, és t�
 | Videókártya | NVIDIA GeForce RTX 3090 |
 | Kijelző | 2 × 4K (3840 × 2160), 60 Hz |
 
-Rendereléskor a Toolbag teljesen kihasználja a videókártyát (100%, egy tesztjelenetben ~11 GB VRAM), tehát nem a Wine a szűk keresztmetszet. AMD/Intel videókártyával, Waylanddel (XWayland), KDE-vel és más disztribúciókkal nincs kipróbálva.
+Rendereléskor a Toolbag teljesen kihasználja a videókártyát (100%-os terhelés; egy tesztjelenet a 24 GB videómemóriából kb. 11 GB-ot használt), tehát nem a Wine a szűk keresztmetszet. AMD/Intel videókártyával, Waylanddel (XWayland), KDE-vel és más disztribúciókkal nincs kipróbálva.
 
 ## Ismert korlátok
 

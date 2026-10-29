@@ -100,7 +100,7 @@ This restores the old image file associations and your menu entries, and removes
 | GPU | NVIDIA GeForce RTX 3090 |
 | Display | 2 × 4K (3840 × 2160) 60 Hz |
 
-Renders use the GPU fully (100%, ~11 GB VRAM in a test scene), so Wine isn't the bottleneck. AMD/Intel GPUs, Wayland (XWayland), KDE and other distros haven't been tested.
+Renders use the GPU fully (100% load; a test scene used about 11 of the 24 GB VRAM), so Wine isn't the bottleneck. AMD/Intel GPUs, Wayland (XWayland), KDE and other distros haven't been tested.
 
 ## Known limitations
 
