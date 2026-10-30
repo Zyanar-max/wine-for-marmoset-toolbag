@@ -57,10 +57,24 @@ cleanup_stale() {
     return 0
 }
 
+# The NVIDIA driver needs /dev/nvidia-uvm to create a Vulkan device. The kernel module can be loaded
+# without it, and the Flatpak sandbox can't create it, so Toolbag fails with "Failed to create Vulkan
+# device, vr -3". nvidia-modprobe is the driver's own helper for this and doesn't need sudo.
+check_nvidia_uvm() {
+    [ -e /proc/driver/nvidia/version ] || return 0    # no NVIDIA driver loaded
+    [ -e /dev/nvidia-uvm ] && return 0
+    nvidia-modprobe -c 0 -u 2>/dev/null
+    [ -e /dev/nvidia-uvm ] && return 0
+    notify-send -u critical -i "$ICON" "$NAME may not start" \
+        "/dev/nvidia-uvm is missing. Run this in a terminal, then start $NAME again: sudo nvidia-modprobe -c 0 -u"
+    return 0
+}
+
 if running || starting; then
     # urgent, so GNOME shows it on top of a fullscreen window too
     notify-send -u critical -i "$ICON" "$NAME is already running" "Only one $NAME can run at a time."
     exit 0
 fi
 cleanup_stale
+check_nvidia_uvm
 exec $CLI run -b "$BOTTLE" -p "$PROGRAM"

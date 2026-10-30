@@ -12,6 +12,7 @@ Fixes for running **Marmoset Toolbag** on Linux in **Bottles**. Install Toolbag 
 | 2 | No menu entry, or a generic icon | Menu entry with Toolbag's own icon. If you already have one, it's kept and only routed through the launcher |
 | 3 | Starting Toolbag a second time freezes Bottles | Only one Toolbag at a time: a second start only shows a notification |
 | 4 | Toolbag 5 needs DirectX 12 | Checks that DXVK, VKD3D-Proton and DXVK-NVAPI are on in the bottle |
+| 5 | With NVIDIA, Toolbag sometimes won't start after a reboot (`Failed to create Vulkan device, vr -3`) | The launcher checks `/dev/nvidia-uvm` before every start and creates it if it's missing |
 
 ## Requirements
 
@@ -47,6 +48,14 @@ Starting Toolbag with the ▶ button in the Bottles window isn't protected.
 
 The notification is urgent, so GNOME shows it on top of a fullscreen window too. It stays until you close it.
 
+### Toolbag won't start after a reboot (NVIDIA)
+
+The NVIDIA driver needs the device file `/dev/nvidia-uvm` to create a Vulkan device. It disappears on every reboot, and something has to create it again. The Bottles (Flatpak) sandbox can't, so without it Toolbag fails with `Failed to create Vulkan device, vr -3`.
+
+Before every start, the launcher checks for this file and creates it with `nvidia-modprobe`, the NVIDIA driver's own helper. This needs no sudo and changes no driver setting. If it can't create the file, you get a notification with the command to run. Without an NVIDIA driver, the launcher skips this check.
+
+Starting Toolbag with the ▶ button in the Bottles window skips this check too.
+
 ## Set these yourself
 
 ### UI size (HiDPI / 4K)
@@ -72,7 +81,7 @@ This restores the old image file associations and your menu entries, and removes
 ## What it changes
 
 - In the bottle's `system.reg` (a backup is saved as `system.reg.bak-wine-for-marmoset-toolbag`): the "open" command of Wine's image classes (`pngfile`, `jpegfile`, `pjpegfile`, `giffile`) and a new class `hostimage` for `.tga .exr .psd .tif .tiff .hdr` run `winebrowser.exe "%1"`. Winebrowser hands the file to Linux (`xdg-open`, through the desktop portal in Flatpak), so it opens in your default app.
-- `~/.local/bin/wine-for-marmoset-toolbag`: starts Toolbag with `bottles-cli`, unless it's already running in this bottle.
+- `~/.local/bin/wine-for-marmoset-toolbag`: starts Toolbag with `bottles-cli`, unless it's already running in this bottle. With an NVIDIA driver, it first creates `/dev/nvidia-uvm` if it's missing (the file is gone after a reboot).
 - Menu entries that start Toolbag from this bottle get `Exec=` pointing to the launcher (a backup is saved next to them as `*.bak-wine-for-marmoset-toolbag`). If there's none: `~/.local/share/applications/wine-for-marmoset-toolbag.desktop`.
 - Toolbag's icon, taken from `toolbag.exe`: `~/.local/share/icons/hicolor/256x256/apps/wine-for-marmoset-toolbag.png`.
 - The old values are kept in `.wine-for-marmoset-toolbag.json` in the bottle folder, for the uninstall.

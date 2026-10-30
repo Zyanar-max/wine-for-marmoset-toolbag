@@ -6,6 +6,7 @@
 #   2. Menu entry with Toolbag's own icon.
 #   3. Only one Toolbag at a time (a second launch would freeze Bottles).
 #   4. Checks the bottle settings Toolbag needs (DXVK, VKD3D-Proton for DirectX 12, NVAPI).
+#   5. The launcher creates /dev/nvidia-uvm before a start if it's missing (NVIDIA only).
 #
 # Run it again after a Bottles update: Bottles sometimes resets the bottle's file associations.
 # Undo: sh install.sh --uninstall
@@ -380,6 +381,13 @@ def install(root, bottle):
             ok(f'{label} is on')
         else:
             warn(f'{label} is off ({why}). In Bottles: bottle -> Settings -> Display/Components -> turn it on.')
+
+    if os.path.exists('/proc/driver/nvidia/version'):
+        say('\n5. NVIDIA device file')
+        if shutil.which('nvidia-modprobe'):
+            ok('the launcher creates /dev/nvidia-uvm before a start if it\'s missing')
+        else:
+            warn('nvidia-modprobe was not found, so the launcher can\'t create /dev/nvidia-uvm if it\'s missing.')
 
     json.dump(state, open(state_path, 'w'), indent=1)
     say('\nDone. Start Toolbag from the menu or the dock.')

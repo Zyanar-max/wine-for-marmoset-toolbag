@@ -12,6 +12,7 @@ Javítások ahhoz, hogy a **Marmoset Toolbag** Linuxon, **Bottles**-ben rendesen
 | 2 | Nincs menüpont, vagy általános ikonja van | Menüpont a Toolbag saját ikonjával. Ha már van menüpontod, az marad, csak az indítón keresztül indul |
 | 3 | Ha másodszor is elindítod a Toolbaget, a Bottles lefagy | Egyszerre csak egy Toolbag: a második indítás csak értesítést ad |
 | 4 | A Toolbag 5-nek DirectX 12 kell | Ellenőrzi, hogy a DXVK, a VKD3D-Proton és a DXVK-NVAPI be van-e kapcsolva a bottle-ben |
+| 5 | NVIDIA-val a Toolbag újraindítás után néha nem indul el (`Failed to create Vulkan device, vr -3`) | Az indító minden indítás előtt ellenőrzi a `/dev/nvidia-uvm` fájlt, és ha hiányzik, létrehozza |
 
 ## Ami kell hozzá
 
@@ -47,6 +48,14 @@ Ha a Bottles ablakában a ▶ gombbal indítod a Toolbaget, az nincs védve.
 
 Az értesítés sürgős, így a GNOME a teljes képernyős ablakok fölött is megmutatja. Addig marad kint, amíg be nem zárod.
 
+### A Toolbag újraindítás után nem indul el (NVIDIA)
+
+Az NVIDIA drivernek a Vulkan eszköz létrehozásához kell a `/dev/nvidia-uvm` eszközfájl. Ez minden újraindításkor eltűnik, és valaminek újra létre kell hoznia. A Bottles (Flatpak) doboza erre nem képes, ezért a fájl nélkül a Toolbag ezzel a hibával áll le: `Failed to create Vulkan device, vr -3`.
+
+Az indító minden indítás előtt ellenőrzi ezt a fájlt, és az `nvidia-modprobe` programmal, az NVIDIA driver saját segédprogramjával létrehozza. Ehhez nem kell sudo, és egyetlen driverbeállítás sem változik. Ha nem tudja létrehozni, értesítést kapsz a futtatandó paranccsal. NVIDIA driver nélkül az indító kihagyja ezt az ellenőrzést.
+
+Ha a Bottles ablakában a ▶ gombbal indítod a Toolbaget, ez az ellenőrzés is kimarad.
+
 ## Ezeket magadnak kell beállítani
 
 ### Felületméret (HiDPI / 4K)
@@ -72,7 +81,7 @@ Visszaállítja a képek régi társításait és a menübejegyzéseidet, és t�
 ## Mit változtat
 
 - A bottle `system.reg` fájljában (mentés: `system.reg.bak-wine-for-marmoset-toolbag`): a Wine képosztályainak (`pngfile`, `jpegfile`, `pjpegfile`, `giffile`) megnyitó parancsa, valamint egy új `hostimage` osztály a `.tga .exr .psd .tif .tiff .hdr` fájloknak a `winebrowser.exe "%1"` parancsot futtatja. A winebrowser átadja a fájlt a Linuxnak (`xdg-open`, Flatpakban az asztali portálon keresztül), így az alapértelmezett programodban nyílik meg.
-- `~/.local/bin/wine-for-marmoset-toolbag`: a `bottles-cli`-vel indítja a Toolbaget, kivéve, ha már fut ebben a bottle-ben.
+- `~/.local/bin/wine-for-marmoset-toolbag`: a `bottles-cli`-vel indítja a Toolbaget, kivéve, ha már fut ebben a bottle-ben. NVIDIA driverrel előtte létrehozza a `/dev/nvidia-uvm` fájlt, ha hiányzik (újraindítás után eltűnik).
 - Azok a menübejegyzések, amelyek ebből a bottle-ből indítják a Toolbaget, az indítóra mutató `Exec=` sort kapnak (mentés mellettük: `*.bak-wine-for-marmoset-toolbag`). Ha nincs ilyen: `~/.local/share/applications/wine-for-marmoset-toolbag.desktop`.
 - A Toolbag ikonja a `toolbag.exe`-ből: `~/.local/share/icons/hicolor/256x256/apps/wine-for-marmoset-toolbag.png`.
 - A régi értékek az eltávolításhoz a bottle mappájában, a `.wine-for-marmoset-toolbag.json` fájlban maradnak meg.
